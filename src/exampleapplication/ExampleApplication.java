@@ -98,14 +98,12 @@ public class ExampleApplication implements Application, KeyboardListener
     public void onKeyPress(KeyEvent ke)
     {
         if(ke.getKey() == Key.UNKNOWN) keyDown = true;
-        System.out.println("App keypress" + ke.getKey());
     }
 
     @Override
     public void onKeyRelease(KeyEvent ke)
     {
         if(ke.getKey() == Key.UNKNOWN) keyDown = false;
-        System.out.println("App keyrelease" + ke.getKey());
     }
 
     
