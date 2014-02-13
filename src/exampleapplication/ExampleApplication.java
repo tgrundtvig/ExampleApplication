@@ -1,4 +1,4 @@
-package testapp;
+package exampleapplication;
 
 import applicationapi.Application;
 import applicationapi.Device;
@@ -14,7 +14,7 @@ import applicationapi.graphics.SpriteFactory;
  *
  * @author tog
  */
-public class TestApp implements Application
+public class ExampleApplication implements Application
 {
     private Sprite ball;
     private int posX;
