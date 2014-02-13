@@ -8,24 +8,31 @@ import applicationapi.graphics.Screen;
 import applicationapi.graphics.Sprite;
 import applicationapi.graphics.SpriteBuilder;
 import applicationapi.graphics.SpriteFactory;
+import applicationapi.input.keyboard.Key;
+import applicationapi.input.keyboard.KeyEvent;
+import applicationapi.input.keyboard.KeyboardListener;
 
 
 /**
  *
  * @author tog
  */
-public class ExampleApplication implements Application
+public class ExampleApplication implements Application, KeyboardListener
 {
+    private boolean keyDown;
     private Sprite ball;
     private int posX;
     private int posY;
     private int width;
     private int height;
     private float pixelsPrMilliSecond;
+    private long lastTime;
     
     @Override
     public boolean initialize(Device dev)
     {
+        this.keyDown = false;
+        dev.getKeyboard().addKeyboardListener(this);
         Screen screen = dev.getScreen();
         if(screen == null) return false;
         this.width = screen.getWidth();
@@ -66,7 +73,12 @@ public class ExampleApplication implements Application
     @Override
     public boolean update(long time)
     {
-        posX = (int) (time * pixelsPrMilliSecond);
+        long deltaTime = time - lastTime;
+        lastTime = time;
+        int dx; 
+        if(keyDown) dx = (int) (deltaTime * pixelsPrMilliSecond);
+        else dx = 0;
+        posX += dx;
         return (posX < width); 
     }
 
@@ -80,6 +92,20 @@ public class ExampleApplication implements Application
     public void destroy()
     {
         //Do nothing
+    }
+
+    @Override
+    public void onKeyPress(KeyEvent ke)
+    {
+        if(ke.getKey() == Key.UNKNOWN) keyDown = true;
+        System.out.println("App keypress" + ke.getKey());
+    }
+
+    @Override
+    public void onKeyRelease(KeyEvent ke)
+    {
+        if(ke.getKey() == Key.UNKNOWN) keyDown = false;
+        System.out.println("App keyrelease" + ke.getKey());
     }
 
     
