@@ -19,11 +19,13 @@ import applicationapi.input.keyboard.KeyboardListener;
  */
 public class ExampleApplication implements Application, KeyboardListener
 {
-    private boolean keyLeftDown;
-    private boolean keyRightDown;
+    private boolean keyLeftPressed;
+    private boolean keyRightPressed;
+    private boolean keyUpPressed;
+    private boolean keyDownPressed;
     private Sprite ball;
-    private float fPos;
-    private int posY;
+    private float fPosX;
+    private float fPosY;
     private int width;
     private int height;
     private float movePrMilliSecond;
@@ -32,16 +34,19 @@ public class ExampleApplication implements Application, KeyboardListener
     @Override
     public boolean initialize(Device dev)
     {
-        this.fPos = 0.5f;
-        this.keyLeftDown = false;
-        this.keyRightDown = false;
+        this.fPosX = 0.5f;
+        this.fPosY = 0.5f;
+        this.keyLeftPressed = false;
+        this.keyRightPressed = false;
+        this.keyUpPressed = false;
+        this.keyDownPressed = false;
         dev.getKeyboard().addKeyboardListener(this);
         Screen screen = dev.getScreen();
         if(screen == null) return false;
         this.width = screen.getWidth();
         this.height = screen.getHeight();
-        this.posY = height / 2;
         this.movePrMilliSecond = 1.0f / 5000.0f;
+        
         int r = height / 24;
         int r2 = r*r;
         int s = r+r+1;
@@ -79,17 +84,25 @@ public class ExampleApplication implements Application, KeyboardListener
         long deltaTime = time - lastTime;
         lastTime = time;
         float fdx; 
-        if(keyLeftDown && !keyRightDown) fdx = deltaTime * -movePrMilliSecond;
-        else if(keyRightDown && !keyLeftDown) fdx = deltaTime * movePrMilliSecond;
+        if(keyLeftPressed && !keyRightPressed) fdx = deltaTime * -movePrMilliSecond;
+        else if(keyRightPressed && !keyLeftPressed) fdx = deltaTime * movePrMilliSecond;
         else fdx = 0.0f;
-        fPos += fdx;
-        return (fPos >= 0.0f && fPos <= 1.0f); 
+        
+        float fdy;
+        if(keyUpPressed && !keyDownPressed) fdy = deltaTime * -movePrMilliSecond;
+        else if(keyDownPressed && !keyUpPressed) fdy = deltaTime * movePrMilliSecond;
+        else fdy = 0.0f;
+        
+        fPosX += fdx;
+        fPosY += fdy;
+        return (fPosX >= 0.0f && fPosX <= 1.0f && fPosY >= 0.0f && fPosY <= 1.0f); 
     }
 
     @Override
     public void draw(Canvas canvas)
     {
-        int posX = (int) (fPos * width);
+        int posX = (int) (fPosX * width);
+        int posY = (int) (fPosY * height);
         canvas.drawSprite(posX, posY, ball);
     }
 
@@ -102,15 +115,19 @@ public class ExampleApplication implements Application, KeyboardListener
     @Override
     public void onKeyPress(KeyEvent ke)
     {
-        if(ke.getKey() == Key.VK_LEFT) keyLeftDown = true;
-        else if(ke.getKey() == Key.VK_RIGHT) keyRightDown = true;
+        if(ke.getKey() == Key.VK_LEFT) keyLeftPressed = true;
+        else if(ke.getKey() == Key.VK_RIGHT) keyRightPressed = true;
+        else if(ke.getKey() == Key.VK_UP) keyUpPressed = true;
+        else if(ke.getKey() == Key.VK_DOWN) keyDownPressed = true;
     }
 
     @Override
     public void onKeyRelease(KeyEvent ke)
     {
-        if(ke.getKey() == Key.VK_LEFT) keyLeftDown = false;
-        if(ke.getKey() == Key.VK_RIGHT) keyRightDown = false;
+        if(ke.getKey() == Key.VK_LEFT) keyLeftPressed = false;
+        else if(ke.getKey() == Key.VK_RIGHT) keyRightPressed = false;
+        else if(ke.getKey() == Key.VK_UP) keyUpPressed = false;
+        else if(ke.getKey() == Key.VK_DOWN) keyDownPressed = false;
     }
 
     
