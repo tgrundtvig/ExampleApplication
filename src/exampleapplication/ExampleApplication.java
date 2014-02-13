@@ -19,26 +19,29 @@ import applicationapi.input.keyboard.KeyboardListener;
  */
 public class ExampleApplication implements Application, KeyboardListener
 {
-    private boolean keyDown;
+    private boolean keyLeftDown;
+    private boolean keyRightDown;
     private Sprite ball;
-    private int posX;
+    private float fPos;
     private int posY;
     private int width;
     private int height;
-    private float pixelsPrMilliSecond;
+    private float movePrMilliSecond;
     private long lastTime;
     
     @Override
     public boolean initialize(Device dev)
     {
-        this.keyDown = false;
+        this.fPos = 0.5f;
+        this.keyLeftDown = false;
+        this.keyRightDown = false;
         dev.getKeyboard().addKeyboardListener(this);
         Screen screen = dev.getScreen();
         if(screen == null) return false;
         this.width = screen.getWidth();
         this.height = screen.getHeight();
         this.posY = height / 2;
-        this.pixelsPrMilliSecond = ((float) width) / 5000.0f;
+        this.movePrMilliSecond = 1.0f / 5000.0f;
         int r = height / 24;
         int r2 = r*r;
         int s = r+r+1;
@@ -75,16 +78,18 @@ public class ExampleApplication implements Application, KeyboardListener
     {
         long deltaTime = time - lastTime;
         lastTime = time;
-        int dx; 
-        if(keyDown) dx = (int) (deltaTime * pixelsPrMilliSecond);
-        else dx = 0;
-        posX += dx;
-        return (posX < width); 
+        float fdx; 
+        if(keyLeftDown && !keyRightDown) fdx = deltaTime * -movePrMilliSecond;
+        else if(keyRightDown && !keyLeftDown) fdx = deltaTime * movePrMilliSecond;
+        else fdx = 0.0f;
+        fPos += fdx;
+        return (fPos >= 0.0f && fPos <= 1.0f); 
     }
 
     @Override
     public void draw(Canvas canvas)
     {
+        int posX = (int) (fPos * width);
         canvas.drawSprite(posX, posY, ball);
     }
 
@@ -97,13 +102,15 @@ public class ExampleApplication implements Application, KeyboardListener
     @Override
     public void onKeyPress(KeyEvent ke)
     {
-        if(ke.getKey() == Key.UNKNOWN) keyDown = true;
+        if(ke.getKey() == Key.VK_LEFT) keyLeftDown = true;
+        else if(ke.getKey() == Key.VK_RIGHT) keyRightDown = true;
     }
 
     @Override
     public void onKeyRelease(KeyEvent ke)
     {
-        if(ke.getKey() == Key.UNKNOWN) keyDown = false;
+        if(ke.getKey() == Key.VK_LEFT) keyLeftDown = false;
+        if(ke.getKey() == Key.VK_RIGHT) keyRightDown = false;
     }
 
     
